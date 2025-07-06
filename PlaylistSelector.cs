@@ -32,8 +32,6 @@ namespace Kalend
 
 
 
-
-
         public override void Awake()
         {
            

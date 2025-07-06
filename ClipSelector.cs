@@ -62,10 +62,6 @@ namespace Kalend
 
 
 
-
-
-
-
         private float _currentClipLength = 5f;
 
         private float _currentClipTime = 0f;
@@ -73,21 +69,16 @@ namespace Kalend
         private float _displayTime;
 
         private string _clipName;
-
-        
+  
 
         private static string _currentClipName = "";      
 
-          
-
-        
+            
    
         private int _loop = 0;
 
         public virtual void Awake()
         {
-
-
 
 
 
@@ -118,7 +109,6 @@ namespace Kalend
                     go.SetActive(!startUIHidden);
                 }
             }
-
 
 
 
@@ -361,9 +351,6 @@ namespace Kalend
         }
 
     
-
-     
-
 
         public void IncrementClip()
         {
