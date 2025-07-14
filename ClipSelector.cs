@@ -149,6 +149,10 @@ namespace Kalend
                 clipTimeDisplay.text = _displayTime.ToString();
             }
 
+            
+            //AudioEvents.nextClip += IncrementClip;
+
+            //AudioEvents.endClip += StopAudio;
 
         }
 
@@ -163,6 +167,12 @@ namespace Kalend
             }
         }
 
+        public void OnDisable()
+        {
+            //AudioEvents.nextClip -= IncrementClip;
+
+            //AudioEvents.endClip -= StopAudio;
+        }
 
         public void ToggleRepeatImage()
         {
@@ -213,11 +223,17 @@ namespace Kalend
 
         public void StopAudio()
         {
+
+
             _playing = false;
             audioSource.Stop();
             _currentClipTime = 0f;
 
+            AudioEvents.ResetClip();
+
             DisplayClipTime();
+
+           
 
         }
 
@@ -260,6 +276,8 @@ namespace Kalend
 
 
             audioSource.clip = currentAudioClip;
+
+            currentAudioSource = audioSource;
 
               
 
