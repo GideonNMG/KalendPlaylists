@@ -21,7 +21,7 @@ namespace Kalend
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            Debug.Log("Sliding finished");
+            //Debug.Log("Sliding finished");
         }
     }
 }

@@ -8,19 +8,23 @@ using TMPro;
 
 namespace Kalend
 {
-    public class AudioScrubber : AudioSelection
+    public class AudioScrubber : AudioPlayer
     {
         public Slider scrubSlider;
 
-        public AudioSource audioSource;
-
         public TextMeshProUGUI scrubValueDisplay;
 
-        private float _scrubValue;
+        [SerializeField]
+        [Range(0.001f, 0.25f)]
+        private float _resetTime = 0.05f;
 
-        private bool _scrubbing;
+        [SerializeField]
+        [Range(0.001f, 0.5f)]
+        private float _waitTime = 0.05f;
 
         private bool _set;
+
+        private bool _allowScrubbing;
 
         public void Awake()
         {
@@ -30,6 +34,8 @@ namespace Kalend
             {
                 audioSource = audioSource.GetComponent<AudioSource>();
                 _set = true;
+
+                _allowScrubbing = true;
             }
 
             else
@@ -38,15 +44,21 @@ namespace Kalend
             }
 
 
-            AudioEvents.reset += ResetScrubber;
+
+                AudioEvents.reset += ResetScrubber;
          
+            
 
         }
 
 
         public void OnDisable()
         {
-            AudioEvents.reset -= ResetScrubber;
+
+        
+                AudioEvents.reset -= ResetScrubber;
+           
+
         }
 
         // Update is called once per frame
@@ -64,14 +76,17 @@ namespace Kalend
 
                 scrubValueDisplay.text = c.ToString() + " %"; ;
 
-                if (currentAudioSource.time >= (currentAudioClip.length - 0.02f))
+                if (currentAudioSource.time > (currentAudioClip.length -  _resetTime))
                 {
+                    scrubbing = false;
 
-                    ResetScrubber();
+                    _allowScrubbing = false;
 
+                   
                 }
 
-                if (!_scrubbing)
+
+                if (!scrubbing)
                 {
                     SetScrubberByAudio();
 
@@ -83,29 +98,43 @@ namespace Kalend
         public void SetScrubbing(bool scrub)
         {
 
-            _scrubbing = scrub;
 
-            //Debug.Log("<color=blue> Scrubbing = </color>" + _scrubbing);
+            scrubbing = _allowScrubbing ? scrub : false;
+
+
+            if (showLogs)
+            {
+
+                Debug.Log("<color=blue> Scrubbing = </color>" + scrubbing);
+            }
+
+
         }
 
         public void ScrubAudio()
         {
             
-                if (_set && _scrubbing)
+                if (_set && scrubbing && _allowScrubbing)
                 {
                     scrubSlider.value = Mathf.Clamp01(scrubSlider.value);
 
-                    float t = Mathf.Clamp(currentAudioClip.length * scrubSlider.value, 0f, (currentAudioClip.length - 0.01f));
+                    float t = Mathf.Clamp(currentAudioClip.length * scrubSlider.value, 0f, (currentAudioClip.length) - _resetTime);
 
-                 audioSource.time = Mathf.Min(currentAudioClip.length, t);
+
+                    audioSource.time = t;
+
+                    currentClipTime = t;
+
 
                 }
 
+            
         }
+
 
         public void SetScrubberByAudio()
         {
-            if (_set && !_scrubbing)
+            if (_set && !scrubbing)
             {
 
                 scrubSlider.value = Mathf.Clamp01(currentAudioSource.time / currentAudioClip.length);
@@ -121,9 +150,30 @@ namespace Kalend
 
             audioSource.time = 0f;
 
-            Debug.Log("<color=Blue> Reset Scrubber Called.</color>");
+            _allowScrubbing = false;
 
+            StartCoroutine(WaitToAllowScrubbing());
 
+            if (showLogs)
+            {
+
+                Debug.Log("<color=Blue> Reset Scrubber Called.</color>");
+
+            }
+
+        }
+
+        public IEnumerator WaitToAllowScrubbing()
+        {
+
+            _allowScrubbing = false;
+            scrubbing = false;
+            scrubSlider.value = 0f;
+          
+
+           yield return new WaitForSeconds(_waitTime);
+
+            _allowScrubbing = true;
         }
 
     }

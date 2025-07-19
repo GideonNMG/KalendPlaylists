@@ -45,7 +45,7 @@ namespace Kalend
         public bool shuffle;
 
 
-        private bool _playing;
+        //private bool _playing;
 
         [HideInInspector]
         public bool firstPlay;
@@ -161,7 +161,11 @@ namespace Kalend
             {
 
                 repeatImage.SetActive(repeat);
-                Debug.Log("<color=green>Toggle Repeat Image Called.</color>");
+                if (showLogs)
+                {
+                    Debug.Log("<color=green>Toggle Repeat Image Called.</color>");
+                }
+                
             }
 
         }
@@ -220,7 +224,7 @@ namespace Kalend
 
         public void SetAudioClip()
         {
-
+            AudioEvents.ResetClip();
 
             audioSource.clip = currentAudioClip;
 
@@ -230,9 +234,9 @@ namespace Kalend
 
             if (repeat)
             {
-                _currentClipLength = currentAudioClip.length - ((startSampleOffset + endSampleOffset) / 48000f);
+                _currentClipLength = currentAudioClip.length - ((startSampleOffset + endSampleOffset) / (float)SampleCount(sampleRate));
 
-                currentClipTime = (startSampleOffset / 48000f);
+                currentClipTime = (startSampleOffset / (float)SampleCount(sampleRate));
 
             }
 
@@ -370,7 +374,12 @@ namespace Kalend
 
             audioClips.Shuffle();
 
-            Debug.Log("<color=magenta>Audio Clips Shuffled.</color>.");
+            if (showLogs)
+            {
+
+                Debug.Log("<color=magenta>Audio Clips Shuffled.</color>.");
+            }
+         
 
             currentIndex = 0;
 
@@ -399,7 +408,7 @@ namespace Kalend
         {
 
 
-            if (_playing)
+            if (playing)
             {
 
                 currentClipTime += Time.deltaTime;
@@ -414,6 +423,11 @@ namespace Kalend
                 }
 
             }
+
+            //if (scrubbing)
+            //{
+            //    currentClipTime = audioSource.time;
+            //}
         
 
             if (currentClipTime >= _currentClipLength )
@@ -430,8 +444,12 @@ namespace Kalend
 
                 else
                 {
+                    if (showLogs)
+                    {
+                        Debug.Log("<color=red>Ending Sample Offset = </color>" + endSampleOffset + "<color=red> Samples. </color>");
 
-                    Debug.Log("<color=red>Ending Sample Offset = </color>" + endSampleOffset + "<color=red> Samples. </color>");
+                    }
+
                     SetAudioClip();
                 }
 
