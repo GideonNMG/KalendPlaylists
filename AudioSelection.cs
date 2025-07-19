@@ -27,9 +27,7 @@ namespace Kalend
 
         public static int currentIndex = 0;
 
-        public static int startSampleOffset = 256;
-
-        public static int endSampleOffset = 256;
+   
 
         public static int ModShift(int index, int n, int delta)
         {

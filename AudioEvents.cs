@@ -29,6 +29,16 @@ namespace Kalend
 
 
 
+        public delegate void PlayListNext();
+
+        public static event PlayListNext nextPlaylist;
+
+
+
+        public delegate void AudioShuffle();
+
+        public static event AudioShuffle shuffleAudio;
+
 
 
 
@@ -75,6 +85,29 @@ namespace Kalend
             {
 
                 reset();
+
+            }
+
+        }
+
+
+        public static void NextPlaylist()
+        {
+            if (nextPlaylist != null)
+            {
+
+                nextPlaylist();
+
+            }
+
+        }
+
+        public static void ShuffleAudio()
+        {
+            if (shuffleAudio != null)
+            {
+
+                shuffleAudio();
 
             }
 

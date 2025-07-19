@@ -15,13 +15,31 @@ namespace Kalend
         public AudioClip[] playListAudioClips;
 
 
+#if UNITY_EDITOR
 
-        public void OnEnable()
+        public void OnValidate()
         {
 
+            if (playListName == "playlist" || playListName == "")
+            {
+                playListName = this.name;
 
+            }
 
         }
+
+#endif
+
+        //public void OnEnable()
+        //{
+
+        //    if(playListName == "playlist")
+        //    {
+        //        playListName = this.name;
+
+        //    }
+
+        //}
 
 
     }

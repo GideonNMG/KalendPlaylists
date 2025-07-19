@@ -86,13 +86,13 @@ namespace Kalend
         void Update()
         {
 
-               if (useSkyboxChanger)
-                {
+               //if (useSkyboxChanger)
+               // {
 
-                    _skybox = SkyboxChanger.currentSkybox;
+               //     _skybox = SkyboxChanger.currentSkybox;
 
-                    skybox = _skybox;
-                }
+               //     skybox = _skybox;
+               // }
           
 
 

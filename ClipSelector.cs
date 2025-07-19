@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 using UnityEngine.Audio;
 using UnityEngine.UI;
@@ -8,10 +9,10 @@ using TMPro;
 namespace Kalend
 {
 
-    [RequireComponent(typeof(AudioSource))]
-    public class ClipSelector : AudioSelection
+   
+    public class ClipSelector : AudioPlayer
     {
-        public AudioSource audioSource;
+
 
         public AudioMixer audioMixer;
 
@@ -23,7 +24,7 @@ namespace Kalend
 
         public TextMeshProUGUI clipNameDisplay;
 
-        public TextMeshProUGUI clipTimeDisplay;      
+        public TextMeshProUGUI clipTimeDisplay;
 
         public GameObject repeatImage;
 
@@ -36,15 +37,18 @@ namespace Kalend
         public GameObject[] alwaysShowObjects;
 
 
-        public bool repeat = true;
 
-        public bool playOnStart = true;
+        public bool playOnStart = false;
 
         public bool startUIHidden;
 
-        
+        public bool shuffle;
+
 
         private bool _playing;
+
+        [HideInInspector]
+        public bool firstPlay;
 
       
         [Range(32, 128)]
@@ -52,19 +56,8 @@ namespace Kalend
 
         private int _displayCount = 0;
 
-        [SerializeField]
-        [Range(0, 48000)]
-        private int _startSampleOffset = 256;
-
-        [SerializeField]
-        [Range(0, 48000)]
-        private int _endSampleOffset = 256;
-
-
 
         private float _currentClipLength = 5f;
-
-        private float _currentClipTime = 0f;
 
         private float _displayTime;
 
@@ -73,21 +66,18 @@ namespace Kalend
 
         private static string _currentClipName = "";      
 
-            
-   
-        private int _loop = 0;
 
         public virtual void Awake()
         {
 
 
+            firstPlay = true;
 
-           if (audioClips != null)
+            if (audioClips != null)
             {
                 clipCount = audioClips.Length;
 
-                SetStartingClip();
-
+                SetStartingClip();             
            
             }
 
@@ -109,7 +99,6 @@ namespace Kalend
                     go.SetActive(!startUIHidden);
                 }
             }
-
 
 
 
@@ -149,17 +138,13 @@ namespace Kalend
                 clipTimeDisplay.text = _displayTime.ToString();
             }
 
-            
-            //AudioEvents.nextClip += IncrementClip;
-
-            //AudioEvents.endClip += StopAudio;
-
         }
 
 
 
-        private void Start()
+        public virtual void Start()
         {
+       
             if (playOnStart)
             {
 
@@ -167,13 +152,8 @@ namespace Kalend
             }
         }
 
-        public void OnDisable()
-        {
-            //AudioEvents.nextClip -= IncrementClip;
 
-            //AudioEvents.endClip -= StopAudio;
-        }
-
+        
         public void ToggleRepeatImage()
         {
 
@@ -181,61 +161,25 @@ namespace Kalend
             {
 
                 repeatImage.SetActive(repeat);
-            }
-            
-
-        }
-       
-
-        public void PlayAudio()
-        {
-            if (repeat)
-            {
-                audioSource.timeSamples = _startSampleOffset;
-
-                _currentClipTime = _startSampleOffset / 48000f;
-
-                //Debug.Log("<color=green>Starting Sample Offset = </color>" + _startSampleOffset + "<color=green> Samples. </color>");
+                Debug.Log("<color=green>Toggle Repeat Image Called.</color>");
             }
 
-            audioSource.Play();
-
-            _playing = true;
-
-
-
         }
 
-        public void SetAudioSourceLoop()
+        
+
+        public override void StopAudio()
         {
 
-            audioSource.loop = repeat;
-        }
-
-        public void PauseAudio()
-        {
-
-            _playing = false;
-            audioSource.Pause();
-
-        }
-
-
-        public void StopAudio()
-        {
-
-
-            _playing = false;
-            audioSource.Stop();
-            _currentClipTime = 0f;
+            base.StopAudio();
 
             AudioEvents.ResetClip();
 
-            DisplayClipTime();
-
-           
+            DisplayClipTime();        
 
         }
+
+
 
         public void SetStartingClip()
         {
@@ -252,6 +196,8 @@ namespace Kalend
 
             else
             {
+               
+
                 currentIndex = 0;
 
                 currentAudioClip = audioClips[0];
@@ -259,8 +205,8 @@ namespace Kalend
 
             SetAudioClip();
 
-
         }
+
 
 
         public void SetCurrentAudioCLip()
@@ -269,6 +215,7 @@ namespace Kalend
 
             SetAudioClip();
         }
+
 
 
         public void SetAudioClip()
@@ -283,28 +230,42 @@ namespace Kalend
 
             if (repeat)
             {
-                _currentClipLength = currentAudioClip.length - ((_startSampleOffset + _endSampleOffset) / 48000f);
+                _currentClipLength = currentAudioClip.length - ((startSampleOffset + endSampleOffset) / 48000f);
 
-                _currentClipTime = (_startSampleOffset / 48000f);
+                currentClipTime = (startSampleOffset / 48000f);
 
             }
 
             else
             {
                 _currentClipLength = currentAudioClip.length;
-                _currentClipTime = 0f;
+                currentClipTime = 0f;
             }
 
-            
-              PlayAudio();
-              GetClipName();
+
+            if(firstPlay && !playOnStart)
+            {
+                GetClipName();
+
+            }
+
+            else
+            {
+                PlayAudio();
+                GetClipName();
+
+            }
+
+            firstPlay = false;
 
         }
 
 
+
         public void GetClipName()
         {
-            _currentClipName = audioSource.clip.name;
+
+            _currentClipName = audioClips[currentIndex].name;
 
             SetClipName();
        }
@@ -315,6 +276,7 @@ namespace Kalend
 
             _clipName = _currentClipName;
             DisplayClipName();
+           
         }
 
 
@@ -323,7 +285,15 @@ namespace Kalend
         {
 
             clipNameDisplay.text = _clipName;
+    
+        }
 
+
+
+        public void ClearClipName()
+        {
+
+            clipNameDisplay.text = "";
         }
 
 
@@ -336,48 +306,52 @@ namespace Kalend
 
                 if (_currentClipLength > 0)
                 {
-                    _displayTime = _currentClipTime % _currentClipLength;
-
+                    _displayTime = currentClipTime % _currentClipLength;
 
                     int minutes = Mathf.FloorToInt(_displayTime / 60f);
-                    int seconds = Mathf.FloorToInt(_displayTime - (minutes * 60));
-                    
+                    int seconds = Mathf.FloorToInt(_displayTime - (minutes * 60));             
 
                     string clockTime = string.Format("{0:0}:{1:00}", minutes, seconds);
 
-
                     clipTimeDisplay.text = clockTime;
 
-
                 }
-
                 
             }
         }
 
 
+
         public void ToggleLooped()
         {
-        
 
-            _loop = ((_loop + 1) % 2);
-
-            repeat = (_loop == 0) ? true : false;
+            repeat = !repeat;
 
             ToggleRepeatImage();
 
         }
 
-    
+
+        public void ToggleShuffle(bool s)
+        {
+
+            shuffle = s;
+        }
+
+
 
         public void IncrementClip()
         {
 
+         
             currentIndex = ModShift(currentIndex, clipCount, 1);
 
             SetCurrentAudioCLip();
 
+            AudioEvents.NextClip();
+
         }
+
 
         public void DecrementClip()
         {
@@ -385,7 +359,41 @@ namespace Kalend
             currentIndex = ModShift(currentIndex, clipCount, -1);
 
             SetCurrentAudioCLip();
+            AudioEvents.NextClip();
         }
+
+
+
+        public void ShuffleAudioClips()
+        {
+
+
+            audioClips.Shuffle();
+
+            Debug.Log("<color=magenta>Audio Clips Shuffled.</color>.");
+
+            currentIndex = 0;
+
+            audioSource.clip = audioClips[0];
+
+            ClearClipName();
+
+            if (!firstPlay)
+            {
+                GetClipName();
+
+            }
+        
+            AudioEvents.ShuffleAudio();
+
+            if (playOnStart)
+            {
+                PlayAudio();
+
+            }    
+
+        }
+
 
         public void Update()
         {
@@ -394,7 +402,7 @@ namespace Kalend
             if (_playing)
             {
 
-                _currentClipTime += Time.deltaTime;
+                currentClipTime += Time.deltaTime;
 
                 _displayCount++;
 
@@ -405,17 +413,15 @@ namespace Kalend
 
                 }
 
-
             }
+        
 
-          
-
-            if (_currentClipTime >= _currentClipLength )
+            if (currentClipTime >= _currentClipLength )
             {
 
-                _currentClipTime = 0f;
+                currentClipTime = 0f;
 
-                if (!repeat)
+                if (repeat == false)
                 {
                     IncrementClip();
 
@@ -425,7 +431,7 @@ namespace Kalend
                 else
                 {
 
-                    Debug.Log("<color=red>Ending Sample Offset = </color>" + _endSampleOffset + "<color=red> Samples. </color>");
+                    Debug.Log("<color=red>Ending Sample Offset = </color>" + endSampleOffset + "<color=red> Samples. </color>");
                     SetAudioClip();
                 }
 

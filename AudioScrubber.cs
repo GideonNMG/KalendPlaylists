@@ -39,8 +39,7 @@ namespace Kalend
 
 
             AudioEvents.reset += ResetScrubber;
-            //scrubSlider.gameObject.SetActive(_set);
-            //scrubValueDisplay.gameObject.SetActive(_set);
+         
 
         }
 
@@ -49,6 +48,7 @@ namespace Kalend
         {
             AudioEvents.reset -= ResetScrubber;
         }
+
         // Update is called once per frame
         void Update()
         {
@@ -62,20 +62,10 @@ namespace Kalend
 
                 int c = Mathf.FloorToInt(f);
 
-                //float g = c / 1000f;
-
                 scrubValueDisplay.text = c.ToString() + " %"; ;
 
                 if (currentAudioSource.time >= (currentAudioClip.length - 0.02f))
                 {
-
-                    //AudioEvents.EndClip();
-
-                    //Debug.Log("<color=red> End of Clip.</color>");
-                    //_scrubbing = false;
-
-                    //AudioEvents.NextClip();
-                    //Debug.Log("<color=Green> Next Clip.</color>");
 
                     ResetScrubber();
 
@@ -105,9 +95,9 @@ namespace Kalend
                 {
                     scrubSlider.value = Mathf.Clamp01(scrubSlider.value);
 
-                    //_scrubValue = currentAudioClip.length * scrubSlider.value;
+                    float t = Mathf.Clamp(currentAudioClip.length * scrubSlider.value, 0f, (currentAudioClip.length - 0.01f));
 
-                    audioSource.time = Mathf.Clamp(currentAudioClip.length * scrubSlider.value, 0f, (currentAudioClip.length - 0.01f));
+                 audioSource.time = Mathf.Min(currentAudioClip.length, t);
 
                 }
 
@@ -123,6 +113,7 @@ namespace Kalend
             }
 
         }
+
 
         public void ResetScrubber()
         {
