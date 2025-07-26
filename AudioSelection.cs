@@ -27,9 +27,8 @@ namespace Kalend
 
         public static int currentIndex = 0;
 
-        //public static int samples = 48000;
-
         public static float currentClipTime = 0f;
+
 
 
         public enum SampleRate
@@ -68,6 +67,8 @@ namespace Kalend
                     result = 96000;
 
                     break;
+
+
 
                 default:
 

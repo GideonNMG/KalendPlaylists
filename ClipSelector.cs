@@ -13,7 +13,7 @@ namespace Kalend
     public class ClipSelector : AudioPlayer
     {
 
-
+      
         public AudioMixer audioMixer;
 
         public AudioMixerGroup audioMixerGroup;
@@ -22,23 +22,33 @@ namespace Kalend
 
         public AudioClip startingClip;
 
+
+        [Header("UI")]
         public TextMeshProUGUI clipNameDisplay;
 
         public TextMeshProUGUI clipTimeDisplay;
 
         public GameObject repeatImage;
 
+        [HideInInspector]
         public GameObject[] startUIHiddenObjects;
-
+        [HideInInspector]
         public GameObject[] startUIVisibleObjects;
-
+        [HideInInspector]
         public GameObject[] alwaysHideObjects;
-
+        [HideInInspector]
         public GameObject[] alwaysShowObjects;
 
 
-
+        [Header("Start Options")]
         public bool playOnStart = false;
+
+        [SerializeField]
+        private bool _repeat = false;
+
+        [SerializeField]
+        [Range(0f,001f)]
+        private float _reset = 0001f;
 
         public bool startUIHidden;
 
@@ -69,9 +79,10 @@ namespace Kalend
 
         public virtual void Awake()
         {
-
-
+           
             firstPlay = true;
+
+            repeat = _repeat;
 
             if (audioClips != null)
             {
@@ -424,13 +435,8 @@ namespace Kalend
 
             }
 
-            //if (scrubbing)
-            //{
-            //    currentClipTime = audioSource.time;
-            //}
-        
 
-            if (currentClipTime >= _currentClipLength )
+            if (currentClipTime >= _currentClipLength - _reset)
             {
 
                 currentClipTime = 0f;

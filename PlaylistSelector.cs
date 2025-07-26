@@ -12,6 +12,11 @@ namespace Kalend
     public class PlaylistSelector : ClipSelector
     {
 
+        [Header("Playlist Options")]
+
+        public bool usePlaylist;
+
+
         public TextMeshProUGUI playlistNameDisplay;
 
         public TextMeshProUGUI previousTrackNameDisplay;
@@ -22,8 +27,7 @@ namespace Kalend
 
         public MusicPlaylist[] playlists;
 
-        public bool usePlaylist;
-
+      
         private bool _playlistDisplayActive = false;
 
         private int _playlistCount;
@@ -37,7 +41,6 @@ namespace Kalend
         private static string _currentPlaylistName;
 
         private bool _listCompleted;
-
 
 
         public override void Awake()

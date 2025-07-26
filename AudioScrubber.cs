@@ -68,7 +68,7 @@ namespace Kalend
 
             if (_set )
             {
-
+                SetScrubberByAudio();
 
                 float f = (Mathf.Clamp01(currentAudioSource.time/ currentAudioClip.length)) * 100f;
 
@@ -85,12 +85,6 @@ namespace Kalend
                    
                 }
 
-
-                if (!scrubbing)
-                {
-                    SetScrubberByAudio();
-
-                }
             } 
         }
 
@@ -134,7 +128,7 @@ namespace Kalend
 
         public void SetScrubberByAudio()
         {
-            if (_set && !scrubbing)
+            if (_set)
             {
 
                 scrubSlider.value = Mathf.Clamp01(currentAudioSource.time / currentAudioClip.length);
